@@ -1,27 +1,3 @@
-# AI Applications Project Documentation Template
-
-Use this template to document your project concisely and completely.
-Fill in all required fields. Keep answers short and precise.
-
-## Documentation Hint
-
-Important:
-When possible, reference the corresponding code location directly in your description.
-
-### Example: Reference to a notebook section
-Reference to the header `## Data Preprocessing` in the notebook `analysis.ipynb`:
-
-> See *Data Preprocessing* in
-> [`analysis.ipynb`](analysis.ipynb#data-preprocessing)
-
-### Example: Reference to Python code
-
-Reference to a single line in `model.py`, line 42:
-> [`model.py`, line 42](model.py#L42)
-
-Reference to multiple lines in `train.py`, lines 15-38:
-> [`train.py`, lines 15-38](train.py#L15-L38)
-
 ## Project Metadata
 
 - Project title: Motorcycle Value Estimator
@@ -35,7 +11,7 @@ Reference to multiple lines in `train.py`, lines 15-38:
 - [x] At least 2 blocks selected
 - [x] Multiple and different data sources used
 - [x] Deployment URL provided
-- [ ] Required GitHub users added to repository (`jasminh`, `bkuehnis`)
+- [x] Required GitHub users added to repository (`jasminh`, `bkuehnis`)
 
 ## Selected AI Blocks
 
