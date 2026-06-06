@@ -28,7 +28,7 @@ https://huggingface.co/spaces/durovali/motorcycle-value-estimator
 | `motorcycle_price_model.pkl` | Trained Gradient Boosting model |
 | `brand_codes.pkl` | Brand encoding mapping |
 | `BIKE DETAILS.csv` | Kaggle motorcycle dataset |
-| `documentation_template.md` | Full project documentation |
+| `documentation.md` | Full project documentation |
 | `requirements.txt` | Python dependencies |
 
 ## How to Run
