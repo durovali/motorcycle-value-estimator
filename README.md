@@ -41,4 +41,4 @@ python app.py
 
 ## Documentation
 
-See [documentation_template.md](documentation_template.md) for the full project documentation.
+See [documentation_template.md](documentation.md) for the full project documentation.
