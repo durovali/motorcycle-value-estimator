@@ -7,16 +7,14 @@ import numpy as np
 from openai import OpenAI
 from transformers import pipeline
 
-# ── Config ─────────────────────────────────────────────────────
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4.1-mini")
 openai_client = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
 
-# ── Load Models ────────────────────────────────────────────────
-# Computer Vision: motorcycle brand classifier
+# Load CV model for brand classification
 cv_classifier = pipeline("image-classification", model="durovali/vit-motorcycle")
 
-# ML Numeric: price prediction model
+# Load ML model for price prediction
 with open("motorcycle_price_model.pkl", "rb") as f:
     price_model = pickle.load(f)
 
@@ -34,8 +32,8 @@ cv_to_brand = {
 }
 
 
-# ── Computer Vision Block ──────────────────────────────────────
 def classify_motorcycle(image):
+    """Classify the motorcycle brand from the uploaded image."""
     if image is None:
         return None, {}
     results = cv_classifier(image)
@@ -44,8 +42,8 @@ def classify_motorcycle(image):
     return top_label, scores
 
 
-# ── ML Numeric Block ───────────────────────────────────────────
 def predict_price(brand_name, year, km_driven, owner_num):
+    """Predict the price using the trained Gradient Boosting model."""
     if brand_name not in brand_codes:
         return None, f"Marke '{brand_name}' nicht im Preismodell vorhanden."
 
@@ -57,8 +55,8 @@ def predict_price(brand_name, year, km_driven, owner_num):
     return round(float(prediction), 2), None
 
 
-# ── NLP Block ──────────────────────────────────────────────────
 def generate_explanation(brand, year, km, owner, price, cv_scores):
+    """Generate a German explanation of the price estimate using OpenAI."""
     if openai_client is None:
         return "OpenAI API Key fehlt. Bitte als Secret eintragen."
 
@@ -98,15 +96,13 @@ def generate_explanation(brand, year, km, owner, price, cv_scores):
         return f"Fehler bei der Erklaerung: {str(e)}"
 
 
-# ── Pipeline ───────────────────────────────────────────────────
 def run_pipeline(image, year, km_driven, owner):
-    # Step 1: Computer Vision - Marke erkennen
+    """Main pipeline: CV -> ML -> NLP."""
     cv_label, cv_scores = classify_motorcycle(image)
 
     if cv_label is None:
         return {}, "Kein Bild", 0, "Bitte lade ein Motorrad-Bild hoch."
 
-    # Step 2: Map CV label to brand name
     brand_name = cv_to_brand.get(cv_label)
     if brand_name is None:
         return (
@@ -116,14 +112,12 @@ def run_pipeline(image, year, km_driven, owner):
             f"Die Marke '{cv_label}' ist leider nicht im Preisdatensatz enthalten.",
         )
 
-    # Step 3: ML - Preis vorhersagen
     owner_num = int(owner.replace(".", "")[0])
     price, error = predict_price(brand_name, int(year), int(km_driven), owner_num)
 
     if error:
         return cv_scores, f"Erkannt: {cv_label}", 0, error
 
-    # Step 4: NLP - Erklaerung generieren
     explanation = generate_explanation(
         brand_name, int(year), int(km_driven), owner_num, price, cv_scores
     )
@@ -133,18 +127,17 @@ def run_pipeline(image, year, km_driven, owner):
     return cv_scores, result_text, price, explanation
 
 
-# ── Gradio Interface ───────────────────────────────────────────
 with gr.Blocks(title="Motorcycle Value Estimator") as demo:
     gr.Markdown(
         """
-        # 🏍️ Motorcycle Value Estimator
+        # Motorcycle Value Estimator
         Lade ein Foto deines Motorrads hoch und gib die Details ein.
         Die App erkennt die Marke, schaetzt den Preis und erklaert die Bewertung.
 
         **So funktioniert es:**
-        1. 📸 Computer Vision erkennt die Motorrad-Marke
-        2. 📊 ML-Modell berechnet den geschaetzten Preis
-        3. 💬 KI erklaert die Wertschaetzung
+        1. Computer Vision erkennt die Motorrad-Marke
+        2. ML-Modell berechnet den geschaetzten Preis
+        3. LLM erklaert die Wertschaetzung
         """
     )
 
@@ -160,13 +153,13 @@ with gr.Blocks(title="Motorcycle Value Estimator") as demo:
                 value="1. Besitzer",
                 label="Besitzer",
             )
-            submit_btn = gr.Button("🔍 Wert schaetzen", variant="primary")
+            submit_btn = gr.Button("Wert schaetzen", variant="primary")
 
         with gr.Column():
-            cv_output = gr.JSON(label="📸 Bilderkennung (CV)")
+            cv_output = gr.JSON(label="Bilderkennung (CV)")
             brand_output = gr.Textbox(label="Erkannte Marke")
-            price_output = gr.Number(label="💰 Geschaetzter Preis (INR)")
-            explanation_output = gr.Textbox(label="💬 KI-Erklaerung", lines=8)
+            price_output = gr.Number(label="Geschaetzter Preis (INR)")
+            explanation_output = gr.Textbox(label="Erklaerung", lines=8)
 
     submit_btn.click(
         fn=run_pipeline,
