@@ -16,7 +16,7 @@ https://huggingface.co/spaces/durovali/motorcycle-value-estimator
 ## Data Sources
 
 - [Kaggle Motorcycle Dataset](https://www.kaggle.com/datasets/nehalbirla/motorcycle-dataset) – 1061 used motorcycle listings (structured CSV)
-- Custom-collected motorcycle images – 55 images across 6 brands (BMW, Honda, Kawasaki, Suzuki, Triumph, Yamaha)
+- [Custom-collected motorcycle images](https://huggingface.co/durovali/vit-motorcycle) – 55 images across 6 brands (BMW, Honda, Kawasaki, Suzuki, Triumph, Yamaha) 
 
 ## Project Files
 
