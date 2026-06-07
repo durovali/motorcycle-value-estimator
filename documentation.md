@@ -184,11 +184,11 @@ The fine-tuned ViT underperforms because of the very small training set (~9 imag
   4. App displays: CV classification scores, recognized brand, predicted price, and German explanation
 - Screenshot or short demo:
 
-![Test 1](test1.png)
+![Screenshot 1](screenshot1.png)
 
 Test 1: Uploaded a BMW motorcycle image. The CV model classified it as Kawasaki (19.1% confidence). The ML model predicted 216557 INR (~2382 CHF). The LLM explanation correctly noted the low confidence and mentioned relevant price factors.
 
-![Test 2](test2.png)
+![Test 2](screenshot2.png)
 
 Test 2: Uploaded a second motorcycle image with different parameters. The pipeline correctly processed the image through all three blocks and returned a price estimate with a German explanation.
 
