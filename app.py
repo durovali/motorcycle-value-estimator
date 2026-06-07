@@ -31,6 +31,9 @@ cv_to_brand = {
     "yamaha": "Yamaha",
 }
 
+# Conversion rate INR to CHF
+INR_TO_CHF = 0.011
+
 
 def classify_motorcycle(image):
     """Classify the motorcycle brand from the uploaded image."""
@@ -51,8 +54,9 @@ def predict_price(brand_name, year, km_driven, owner_num):
     age = 2024 - year
 
     features = np.array([[brand_code, year, km_driven, owner_num, age]])
-    prediction = price_model.predict(features)[0]
-    return round(float(prediction), 2), None
+    prediction_inr = price_model.predict(features)[0]
+    prediction_chf = prediction_inr * INR_TO_CHF
+    return round(float(prediction_chf), 2), None
 
 
 def generate_explanation(brand, year, km, owner, price, cv_scores):
@@ -61,21 +65,20 @@ def generate_explanation(brand, year, km, owner, price, cv_scores):
         return "OpenAI API Key fehlt. Bitte als Secret eintragen."
 
     system_prompt = (
-        "Du bist ein Motorrad-Experte und hilfst bei der Wertschaetzung von Gebrauchtmotorraedern. "
-        "Erklaere die Preisschaetzung kurz und verstaendlich auf Deutsch. "
+        "Du bist ein Motorrad-Experte und hilfst bei der Wertschätzung von Gebrauchtmotorrädern. "
+        "Erkläre die Preisschätzung kurz und verständlich auf Deutsch. "
         "Erwahne die wichtigsten Faktoren (Marke, Alter, Kilometer, Besitzer). "
-        "Gib auch eine kurze Einschaetzung ob der Preis fair ist. "
-        "Fuege einen Hinweis auf Unsicherheit hinzu. "
+        "Gib auch eine kurze Einschätzung ob der Preis fair ist. "
+        "Füge einen Hinweis auf Unsicherheit hinzu. "
         "Berechne KEINEN neuen Preis. "
         "Antworte NUR mit validem JSON ohne Markdown: "
-        '{"answer": "<deine Erklaerung auf Deutsch>"}'
+        '{"answer": "<deine Erklärung auf Deutsch>"}'
     )
 
     user_prompt = (
         f"Motorrad: {brand}, Baujahr {year}, {km} km gefahren, {owner}. Besitzer. "
         f"Die Bilderkennung hat folgende Konfidenz: {json.dumps(cv_scores)}. "
-        f"Geschaetzter Preis: {price:.0f} INR (Indische Rupien). "
-        f"Das entspricht ca. {price * 0.011:.0f} CHF."
+        f"Geschätzter Preis: {price:.0f} CHF."
     )
 
     try:
@@ -93,7 +96,7 @@ def generate_explanation(brand, year, km, owner, price, cv_scores):
         parsed = json.loads(raw)
         return parsed.get("answer", raw)
     except Exception as e:
-        return f"Fehler bei der Erklaerung: {str(e)}"
+        return f"Fehler bei der Erklärung: {str(e)}"
 
 
 def run_pipeline(image, year, km_driven, owner):
@@ -132,12 +135,12 @@ with gr.Blocks(title="Motorcycle Value Estimator") as demo:
         """
         # Motorcycle Value Estimator
         Lade ein Foto deines Motorrads hoch und gib die Details ein.
-        Die App erkennt die Marke, schaetzt den Preis und erklaert die Bewertung.
+        Die App erkennt die Marke, schätzt den Preis und erklärt die Bewertung.
 
         **So funktioniert es:**
         1. Computer Vision erkennt die Motorrad-Marke
-        2. ML-Modell berechnet den geschaetzten Preis
-        3. LLM erklaert die Wertschaetzung
+        2. ML-Modell berechnet den geschätzten Preis
+        3. LLM erklärt die Wertschätzung
         """
     )
 
@@ -153,13 +156,13 @@ with gr.Blocks(title="Motorcycle Value Estimator") as demo:
                 value="1. Besitzer",
                 label="Besitzer",
             )
-            submit_btn = gr.Button("Wert schaetzen", variant="primary")
+            submit_btn = gr.Button("Wert schätzen", variant="primary")
 
         with gr.Column():
             cv_output = gr.JSON(label="Bilderkennung (CV)")
             brand_output = gr.Textbox(label="Erkannte Marke")
-            price_output = gr.Number(label="Geschaetzter Preis (INR)")
-            explanation_output = gr.Textbox(label="Erklaerung", lines=8)
+            price_output = gr.Number(label="Geschätzter Preis (CHF)")
+            explanation_output = gr.Textbox(label="Erklärung", lines=8)
 
     submit_btn.click(
         fn=run_pipeline,
@@ -170,8 +173,8 @@ with gr.Blocks(title="Motorcycle Value Estimator") as demo:
     gr.Markdown(
         """
         ---
-        **Hinweis:** Die Preise basieren auf indischen Marktdaten (INR).
-        Die Schaetzung dient nur als Orientierung.
+        **Hinweis:** Die Preise basieren auf einem Modell mit indischen Marktdaten,
+        umgerechnet in CHF. Die Schätzung dient nur als grobe Orientierung.
         """
     )
 
